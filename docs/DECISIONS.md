@@ -89,6 +89,9 @@ Why (requested "more visible and relatable"): a faint ghost of the finished patt
 **21. GitHub Pages, deployed by GitHub Actions, built from source.**
 Why: free hosting; the Bible texts are downloaded during the build so the repository stays small (about 0.5 MB of source); the tests run before every publish, so a broken change is never live.
 
+**21b. The service worker revalidates every file with the server.**
+Why: GitHub Pages sends `cache-control: max-age=600`, so for ten minutes after an update a browser could use some new and some old files (found on the live site: a new settings screen with old text). `fetch(req, { cache: 'no-cache' })` asks the server each time and gets a small "not modified" answer when nothing changed, so every load is consistent and updates appear at once.
+
 **22. The repository is public.**
 Why: the free GitHub plan cannot serve Pages from a private repository. The owner first chose private, then chose public after seeing this. Alternatives offered: host elsewhere (Vercel) or upgrade GitHub.
 

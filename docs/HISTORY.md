@@ -75,6 +75,7 @@ hosting on **GitHub** with updates pushed there, and this documentation.
 | 12 | The commit carried a real email that a public repository would show | Pre-publish check | Rewrote the commit with the no-reply address (approved) |
 | 13 | Free GitHub plan cannot serve Pages from a private repository | GitHub's Pages settings | Owner chose to make the repository public |
 | 14 | The stitching-animation switch needed a reload | Check on the live site | The switch now re-applies the look immediately |
+| 15 | Just after a deploy the live site mixed new and old files (new screen, old text labels) because GitHub Pages lets browsers cache files for 10 minutes | Checking the animation change on the live site | The service worker now revalidates every request with the server |
 
 ## What was verified, and how
 

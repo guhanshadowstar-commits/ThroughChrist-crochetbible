@@ -358,7 +358,7 @@ export const NOTES = {
   'web/sw.js': {
     runs: 'Browser',
     does: 'The service worker that makes the app work offline.',
-    how: 'Downloaded Bible data (`data/*.db`, `art.bin`) is cache-first: fetched once, kept on the device. Everything else is network-first, so updates arrive when online and the cached copy is used when offline. It works out its own folder from its scope, so it behaves the same at a site root or in a sub-folder. Partial (range) responses are never cached.',
+    how: 'Downloaded Bible data (`data/*.db`, `art.bin`) is cache-first: fetched once, kept on the device. Everything else is network-first, so updates arrive when online and the cached copy is used when offline; each request revalidates with the server (`cache: \"no-cache\"`) because GitHub Pages lets browsers keep files for 10 minutes, which could otherwise mix new and old files right after an update. It works out its own folder from its scope, so it behaves the same at a site root or in a sub-folder. Partial (range) responses are never cached.',
     usedBy: ['web/js/app.mjs registers it'],
   },
 };

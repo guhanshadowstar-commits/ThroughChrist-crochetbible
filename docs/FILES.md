@@ -112,7 +112,7 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **How it is done.** Hand written; each entry lists the choice, the reason and the alternatives.
 
-**Runs in:** Not code · 104 lines
+**Runs in:** Not code · 107 lines
 
 **Used by:** People reading the repository
 
@@ -142,7 +142,7 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **How it is done.** Hand written from the working log of the build.
 
-**Runs in:** Not code · 100 lines
+**Runs in:** Not code · 101 lines
 
 **Used by:** People reading the repository
 
@@ -856,8 +856,8 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **What it is.** The service worker that makes the app work offline.
 
-**How it is done.** Downloaded Bible data (`data/*.db`, `art.bin`) is cache-first: fetched once, kept on the device. Everything else is network-first, so updates arrive when online and the cached copy is used when offline. It works out its own folder from its scope, so it behaves the same at a site root or in a sub-folder. Partial (range) responses are never cached.
+**How it is done.** Downloaded Bible data (`data/*.db`, `art.bin`) is cache-first: fetched once, kept on the device. Everything else is network-first, so updates arrive when online and the cached copy is used when offline; each request revalidates with the server (`cache: "no-cache"`) because GitHub Pages lets browsers keep files for 10 minutes, which could otherwise mix new and old files right after an update. It works out its own folder from its scope, so it behaves the same at a site root or in a sub-folder. Partial (range) responses are never cached.
 
-**Runs in:** Browser · 50 lines
+**Runs in:** Browser · 52 lines
 
 **Used by:** web/js/app.mjs registers it
