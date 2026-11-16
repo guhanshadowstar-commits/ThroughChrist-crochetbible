@@ -1,0 +1,23 @@
+{
+  "name": "crochet-bible",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Bible in English and Tamil with a crochet picture stitched for every verse. Offline-capable web app.",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "fetch": "node pipeline/fetch-sources.mjs",
+    "build": "node pipeline/build-data.mjs && node pipeline/build-art.mjs",
+    "build:art": "node pipeline/build-art.mjs",
+    "search": "node --no-warnings pipeline/cli.mjs",
+    "export": "node pipeline/export-web.mjs",
+    "icons": "node pipeline/make-icons.mjs",
+    "serve": "node --no-warnings server/server.mjs",
+    "test": "node --no-warnings --test \"pipeline/*.test.mjs\""
+  },
+  "dependencies": {
+    "@sqlite.org/sqlite-wasm": "^3.54.1-build1"
+  }
+}

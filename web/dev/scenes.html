@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Scene gallery</title>
+<style>
+  body { margin: 0; padding: 14px; background: #2a2622; color: #eee; font: 12px system-ui; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  figure { margin: 0; }
+  canvas { display: block; width: 100%; border-radius: 6px; cursor: pointer; background: #000; }
+  figcaption { margin-top: 3px; color: #bbb; line-height: 1.35; }
+  b { color: #fff; }
+</style></head>
+<body>
+<div class="grid" id="g"></div>
+<script type="module">
+import { decodeArt } from '/core/art/spec.mjs';
+import { composeScene } from '/core/art/compose.mjs';
+import { CrochetCanvas } from '/js/crochet.mjs';
+import { BOOK_BY_ID, splitRef } from '/core/books.mjs';
+import { formatReference } from '/core/reference.mjs';
+
+const art = decodeArt(await (await fetch('/data/art.bin')).arrayBuffer());
+const q = new URLSearchParams(location.search);
+const famous = [1001001, 1001003, 19023001, 19023004, 43003016, 43001001, 40004019, 23040031, 43010011, 43006035,
+  19119105, 40005014, 27006022, 32001017, 1006014, 1003001, 46013004, 19150003, 49006016, 66021004, 20003005, 50004013];
+let refs = q.get('refs') ? q.get('refs').split(',').map(Number) : famous;
+if (q.get('random')) {
+  const all = [...Array(art.count).keys()];
+  let s = Number(q.get('random')) || 1; const rnd = () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+  const first = []; for (let r = 1001001; first.length < 0; r++);
+  const pool = famous.length ? [] : [];
+  refs = Array.from({ length: Number(q.get('n') ?? 24) }, () => 0);
+  const keys = [...Array(art.count).keys()];
+  const list = []; // pick random refs by sampling the pack through specFor over canonical refs
+  const probe = []; for (let b = 1; b <= 66; b++) for (let c = 1; c <= 50; c++) for (let v = 1; v <= 40; v++) { const r = b * 1e6 + c * 1e3 + v; if (art.has(r)) probe.push(r); }
+  refs = refs.map(() => probe[Math.floor(rnd() * probe.length)]);
+}
+for (const ref of refs) {
+  const spec = art.specFor(ref);
+  if (!spec) continue;
+  const fig = document.createElement('figure');
+  const cv = document.createElement('canvas');
+  const cc = new CrochetCanvas(cv, { cell: 7 });
+  const scene = composeScene(spec, ref);
+  cc.setScene(scene);
+  if (q.get('reveal')) cc.reveal({ duration: 2500 }); else cc.finish();
+  cv.addEventListener('click', () => cc.reveal({ duration: 3500 }));
+  const s = splitRef(ref);
+  fig.append(cv, Object.assign(document.createElement('figcaption'), {
+    innerHTML: `<b>${formatReference(s, 'en')}</b> ${spec.hero}${spec.props.length ? ' + ' + spec.props.join(', ') : ''}<br>${spec.setting} · ${spec.time} · ${spec.mood}`,
+  }));
+  document.getElementById('g').append(fig);
+}
+</script></body></html>

@@ -1,0 +1,6 @@
+node_modules/
+# Downloaded Bible texts and everything built from them are recreated by the workflow ("npm run fetch" and "npm run build")
+data/raw/
+dist/
+.DS_Store
+.claude/

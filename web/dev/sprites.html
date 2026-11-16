@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Sprite sheet</title>
+<style>
+  body { margin: 0; padding: 16px; background: #2a2622; color: #eee; font: 13px system-ui; }
+  .grid { display: flex; flex-wrap: wrap; gap: 14px; }
+  figure { margin: 0; text-align: center; }
+  canvas { display: block; width: 150px; border-radius: 6px; background: #000; }
+  figcaption { margin-top: 3px; color: #bbb; }
+</style></head>
+<body>
+<div class="grid" id="g"></div>
+<script type="module">
+import { SPRITE_NAMES, getFrames } from '/core/art/sprites.mjs';
+import { Grid } from '/core/art/draw.mjs';
+import { RGB, C } from '/core/art/palette.mjs';
+import { CrochetCanvas } from '/js/crochet.mjs';
+
+const only = new URLSearchParams(location.search).get('only')?.split(',');
+const names = only ?? SPRITE_NAMES;
+const SIZE = 28;
+for (const name of names) {
+  const spr = getFrames(name)[0];
+  const g = new Grid(SIZE, SIZE);
+  for (let i = 0; i < g.px.length; i++) g.px[i] = C.s;               // sky
+  g.rect(0, SIZE - 5, SIZE, 5, 'n');                                  // grass
+  g.blit(spr, Math.floor((SIZE - spr.w) / 2), Math.max(0, SIZE - 4 - spr.h));
+  const scene = { w: SIZE, h: SIZE, rgb: RGB, frameColor: C.k, frame: () => g.px };
+  const fig = document.createElement('figure');
+  const cv = document.createElement('canvas');
+  const cc = new CrochetCanvas(cv, { cell: 8 });
+  cc.setScene(scene); cc.showStill();
+  fig.append(cv, Object.assign(document.createElement('figcaption'), { textContent: `${name} ${spr.w - 2}x${spr.h - 2}` }));
+  document.getElementById('g').append(fig);
+}
+</script></body></html>
