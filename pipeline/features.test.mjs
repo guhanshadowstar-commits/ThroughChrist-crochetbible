@@ -128,6 +128,34 @@ test('backup: export then restore merges without duplicates, and refuses foreign
   assert.throws(() => store.importData('not json'));
 });
 
+test('crocheting plays once per verse: seen verses are remembered, with a limit', () => {
+  assert.equal(store.settings.motion, 'first', 'the default is "first time only"');
+  assert.equal(store.hasSeen(1001001), false);
+  store.markSeen(1001001);
+  assert.equal(store.hasSeen(1001001), true);
+  store.markSeen(1001001); // marking twice must not duplicate
+  assert.equal(store.settings.seen.filter((r) => r === 1001001).length, 1);
+
+  // the list is capped so it never grows without bound: the oldest verses are forgotten first
+  for (let i = 0; i < 4100; i++) store.markSeen(5_000_000 + i);
+  assert.equal(store.settings.seen.length, 4000);
+  assert.equal(store.hasSeen(1001001), false, 'the oldest entry was dropped');
+  assert.equal(store.hasSeen(5_000_000 + 4099), true);
+
+  store.forgetSeen();
+  assert.equal(store.hasSeen(5_000_000 + 4099), false);
+  assert.deepEqual(store.settings.seen, []);
+});
+
+test('older settings and backups that said motion "on" now mean "first time only"', () => {
+  store.settings.motion = 'always';
+  store.importData(JSON.stringify({ app: 'crochet-bible', motion: 'on' }));
+  assert.equal(store.settings.motion, 'first');
+  store.importData(JSON.stringify({ app: 'crochet-bible', motion: 'off' }));
+  assert.equal(store.settings.motion, 'off');
+  store.settings.motion = 'first';
+});
+
 test('verse of the day: well-loved verses that all have pictures, same verse all day', { skip }, () => {
   const art = decodeArt(readFileSync(path.join(DEFAULT_DATA_DIR, 'art.bin')));
   assert.ok(POPULAR.length >= 80);

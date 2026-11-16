@@ -1,13 +1,13 @@
 // The picture side of a verse: scenes (with the reader's own edits applied), the verse card with
 // the crocheting animation, the picture editor, and sharing a verse as an image.
 import * as data from './data.mjs';
-import { settings, isBookmarked, toggleBookmark, artEditOf, setArtEdit, noteOf } from './store.mjs';
+import { settings, isBookmarked, toggleBookmark, artEditOf, setArtEdit, noteOf, markSeen } from './store.mjs';
 import { t, getLang } from './i18n.mjs';
 import { CrochetCanvas } from './crochet.mjs';
 import { composeScene, describeScene } from '../core/art/compose.mjs';
 import { SETTINGS, TIMES, MOODS, SPRITE_LIST } from '../core/art/spec.mjs';
 import { splitRef } from '../core/books.mjs';
-import { h, toast, onLeave, openSheet, textBlocks, refLabels, bookName, motionOn, idleOn, isTamilText } from './ui.mjs';
+import { h, toast, onLeave, openSheet, textBlocks, refLabels, bookName, reducedMotion, shouldReveal, idleOn, isTamilText } from './ui.mjs';
 import { label, figureLabel } from './labels.mjs';
 
 /** Fired with the verse ref whenever a picture is edited, so thumbnails repaint. */
@@ -59,21 +59,29 @@ export function verseCard(ref, { autoplay = true, nav = null } = {}) {
     count.textContent = `${total.toLocaleString()} ${t('stitches')}`;
     bar.style.width = '100%';
   };
-  const start = (opts = {}) => {
-    if (!motionOn()) { cc.finish({ idle: idleOn() }); setIdle(); return; }
+  // `asked` = the reader pressed "Watch again": that plays even when the animation is switched off in Settings
+  // (but never when the device itself asks for reduced motion).
+  const start = (opts = {}, asked = false) => {
+    if (reducedMotion() || (!asked && settings.motion === 'off')) { cc.finish({ idle: idleOn() }); setIdle(); return; }
     stitching = true;
     progress.classList.remove('done');
     replayBtn.textContent = t('skip');
     cc.reveal({
       speed: settings.speed, idle: idleOn(), ...opts,
-      onProgress: (d) => { bar.style.width = `${(d / total) * 100}%`; count.textContent = `${d.toLocaleString()} / ${total.toLocaleString()} ${t('stitches')}`; },
-      onDone: setIdle,
+      onProgress: (d) => {
+        bar.style.width = `${(d / total) * 100}%`;
+        const row = Math.min(scene.h, Math.floor((d - 1) / scene.w) + 1);
+        count.textContent = `${t('rowOf', Math.max(1, row), scene.h)} · ${d.toLocaleString()} ${t('stitches')}`;
+        if (d >= total * 0.3) markSeen(ref); // watched enough: next time it appears finished
+      },
+      onDone: () => { markSeen(ref); setIdle(); },
     });
   };
-  const finishNow = () => { cc.finish({ idle: idleOn() }); setIdle(); };
-  replayBtn.addEventListener('click', () => { if (stitching) finishNow(); else start(); });
+  const finishNow = () => { markSeen(ref); cc.finish({ idle: idleOn() }); setIdle(); };
+  replayBtn.addEventListener('click', () => { if (stitching) finishNow(); else start({}, true); });
   canvas.addEventListener('click', () => { if (stitching) finishNow(); });
-  if (autoplay) start(); else { cc.finish({ idle: idleOn() }); setIdle(); }
+  // The crocheting plays the first time a verse is opened; after that the finished picture is simply there.
+  if (autoplay && shouldReveal(ref)) start(); else { cc.finish({ idle: idleOn() }); setIdle(); }
 
   const [main, other] = refLabels(ref);
   const textsWrap = h('div', { class: 'texts' });

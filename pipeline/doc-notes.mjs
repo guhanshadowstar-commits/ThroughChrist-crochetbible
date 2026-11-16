@@ -192,7 +192,7 @@ export const NOTES = {
   'pipeline/features.test.mjs': {
     runs: 'Node (build)',
     does: 'Tests for features added after the first release.',
-    how: 'Search scopes (testaments add up to the whole; one book stays inside itself), picture variants and shuffles, English and Tamil names for every figure, place, hour and mood, English/Tamil interface text having exactly the same entries, saved data (stars, highlights, notes, picture edits, recent searches), backup and restore without duplicates, and the verse-of-the-day list. Gives `store.mjs` a simple stand-in for `localStorage`.',
+    how: 'Search scopes (testaments add up to the whole; one book stays inside itself), picture variants and shuffles, English and Tamil names for every figure, place, hour and mood, English/Tamil interface text having exactly the same entries, saved data (stars, highlights, notes, picture edits, recent searches), backup and restore without duplicates, and the verse-of-the-day list. Includes the "plays once per verse" memory and its cap, and old settings that said motion "on". Gives `store.mjs` a simple stand-in for `localStorage`.',
     usedBy: ['npm test'],
   },
   'pipeline/fetch-sources.mjs': {
@@ -301,12 +301,12 @@ export const NOTES = {
   'web/js/art-view.mjs': {
     runs: 'Browser',
     does: 'The picture side of a verse: scenes with the reader\'s own edits applied, the verse card, the picture editor, and sharing a verse as an image.',
-    how: '`specOf`/`sceneOf` merge the stored picture description with any saved edit. The verse card plays the crocheting reveal (speed from Settings), keeps the progress bar, and offers Watch again, Save, Edit picture, Copy and Share. The editor changes place, hour, mood and up to three figures, or shuffles the layout, redrawing the picture each time and announcing the change so list thumbnails repaint. Sharing draws a 1080-pixel card (picture, reference, verse text wrapped in both languages) and hands it to the phone\'s share sheet or downloads it.',
+    how: '`specOf`/`sceneOf` merge the stored picture description with any saved edit. The verse card plays the crocheting reveal only when `shouldReveal` says so (by default the first time a verse is opened; afterwards the finished picture appears at once), shows "Row 12 of 32" and a progress bar, marks the verse as seen once 30% has been watched, finished or skipped, and offers Watch again (which plays even when the animation is set to Off), Save, Edit picture, Copy and Share. The editor changes place, hour, mood and up to three figures, or shuffles the layout, redrawing the picture each time and announcing the change so list thumbnails repaint. Sharing draws a 1080-pixel card (picture, reference, verse text wrapped in both languages) and hands it to the phone\'s share sheet or downloads it.',
   },
   'web/js/crochet.mjs': {
     runs: 'Browser',
     does: 'Draws a scene as crochet and plays the crocheting animation.',
-    how: 'Each cell is a stitch tile (a darker gap, two slanted legs, highlights) drawn once per colour and reused. The reveal works bottom row first, each row in the opposite direction like real crochet, with a hook that rocks as it works, yarn that sways in from the corner, a shimmer on freshly worked stitches, and a band of light sweeping across at the end. After that only the cells that change are repainted, ten times a second, for the idle animation. Speeds: slow 7 s, normal 3.8 s, fast 1.7 s.',
+    how: 'Each cell is a stitch tile (a darker gap, two slanted legs, highlights) drawn once per colour and reused. The reveal works bottom row first, each row in the opposite direction like real crochet. To make it easy to follow, the not-yet-worked area shows a faint ghost of the finished pattern (like a crochet chart), the row being worked is lit, each new stitch pops out a little bigger and glints, a ball of yarn (shrinking as the work grows) feeds a swaying thread to a larger, rocking hook with a loop on its tip, and a band of light sweeps across at the end. After that only the cells that change are repainted, ten times a second, for the idle animation. Speeds: slow 7 s, normal 3.8 s, fast 1.7 s.',
   },
   'web/js/data.mjs': {
     runs: 'Browser',
@@ -332,7 +332,7 @@ export const NOTES = {
   'web/js/store.mjs': {
     runs: 'Browser',
     does: 'Everything the app remembers on the device, in `localStorage`.',
-    how: 'Settings (versions shown, text size, theme, speed...), saved verses, highlights (colours 1 to 4), notes, picture edits and recent searches, all in one JSON record. Reads and writes never throw, so private windows simply remember nothing. `exportData`/`importData` make and restore a backup file; restoring merges, never duplicates, and refuses files that are not Crochet Bible backups.',
+    how: 'Settings (versions shown, text size, theme, animation mode and speed...), saved verses, highlights (colours 1 to 4), notes, picture edits, recent searches and the list of verses whose crocheting has already been shown (capped at 4,000, oldest dropped first), all in one JSON record. Reads and writes never throw, so private windows simply remember nothing. `exportData`/`importData` make and restore a backup file; restoring merges, never duplicates, and refuses files that are not Crochet Bible backups.',
   },
   'web/js/thumbs.mjs': {
     runs: 'Browser',
@@ -342,12 +342,12 @@ export const NOTES = {
   'web/js/ui.mjs': {
     runs: 'Browser',
     does: 'The small toolkit every screen uses: the `h()` element builder, toast messages, the bottom sheet, icons, verse text blocks with highlighted search words, and the "leave this screen" cleanup list.',
-    how: '`h()` builds DOM elements without any framework and never uses innerHTML for text, so verse text and search input cannot inject markup. Cleanups stop animations and keyboard handlers when the screen changes.',
+    how: '`h()` builds DOM elements without any framework and never uses innerHTML for text, so verse text and search input cannot inject markup. Cleanups stop animations and keyboard handlers when the screen changes. `shouldReveal(ref)` decides whether a verse is crocheted now: always in "Every time" mode, only for verses not yet seen in "First time only" mode, never in "Off" mode or when the device asks for reduced motion.',
   },
   'web/js/views.mjs': {
     runs: 'Browser',
     does: 'The screens: Home, Reader, Verse, Search, Saved and Settings, plus the book picker and the notes and highlight dialogs.',
-    how: 'Reader: tap verses to select; a bar offers Picture, Copy, Save, Highlight (4 colours) and Note; English and Tamil show side by side on wide screens. Book picker: a "Continue reading" shortcut, a filter that understands English and Tamil names, then a chapter grid. Search: scope (whole Bible, testament, one book), any-word, Tamil in English letters, recent searches, and references such as "John 3:16" open the passage directly. Saved: stars, highlights and notes. Settings: language, versions (download or remove), text size, pictures beside verses, theme, stitching animation, speed, idle motion, backup and restore, credits.',
+    how: 'Reader: tap verses to select; a bar offers Picture, Copy, Save, Highlight (4 colours) and Note; English and Tamil show side by side on wide screens. Book picker: a "Continue reading" shortcut, a filter that understands English and Tamil names, then a chapter grid. Search: scope (whole Bible, testament, one book), any-word, Tamil in English letters, recent searches, and references such as "John 3:16" open the passage directly. Saved: stars, highlights and notes. Settings: language, versions (download or remove), text size, pictures beside verses, theme, stitching animation (first time only, every time, off), speed, idle motion, backup and restore, credits.',
   },
   'web/manifest.webmanifest': {
     runs: 'Browser',

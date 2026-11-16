@@ -139,6 +139,12 @@ export class CrochetCanvas {
     this.fx.fillStyle = '#2a221d'; // bare, not-yet-worked fabric
     this.fx.fillRect(p * s, p * s, w * s, h * s);
     const first = this.scene.frame(0);
+    // A faint ghost of the finished pattern, so you can see what is being made (like a crochet chart).
+    for (let i = 0; i < first.length; i++) {
+      const [r, g, b] = this.scene.rgb[first[i]];
+      this.fx.fillStyle = `rgba(${r},${g},${b},0.24)`;
+      this.fx.fillRect(((i % w) + p) * s, (Math.floor(i / w) + p) * s, s, s);
+    }
     const order = (n) => { // n-th stitch worked -> cell index
       const row = h - 1 - Math.floor(n / w);
       const k = n % w;
@@ -153,7 +159,7 @@ export class CrochetCanvas {
       for (; done < target; done++) {
         const i = order(done);
         this._paintCell(i % w, Math.floor(i / w), first[i]);
-        this.recent.push({ i, at: now });
+        this.recent.push({ i, at: now, idx: first[i] });
       }
       onProgress?.(done, total);
       if (done >= total) {
@@ -166,44 +172,100 @@ export class CrochetCanvas {
       const cur = order(Math.max(0, done - 1));
       const cx = ((cur % w) + p + 0.5) * s, cy = (Math.floor(cur / w) + p + 0.5) * s;
       this.recent = this.recent.filter((r) => now - r.at < 280);
-      this._flush((c) => { this._drawShimmer(c, now); this._drawHook(c, cx, cy, first[cur], now); });
+      const progress = done / total, row = Math.floor(cur / w);
+      this._flush((c) => {
+        this._drawRow(c, row);
+        this._drawPop(c, now);
+        const ball = this._drawBall(c, first[cur], progress, now);
+        this._drawHook(c, cx, cy, first[cur], now, ball);
+      });
       this.raf = requestAnimationFrame(tick);
     };
     this.raf = requestAnimationFrame(tick);
   }
 
-  /** A soft glow on the stitches just worked, fading behind the hook. */
-  _drawShimmer(c, now) {
+  /** The row being worked is lit, so you can follow where the hook is going. */
+  _drawRow(c, row) {
+    const { w } = this.scene, s = this.cell, p = this.pad;
+    c.fillStyle = 'rgba(255,255,255,0.09)';
+    c.fillRect(p * s, (row + p) * s, w * s, s);
+    c.fillStyle = 'rgba(255,255,255,0.35)';
+    c.fillRect(p * s, (row + p) * s, w * s, Math.max(1, s * 0.08));
+  }
+
+  /** Each new stitch pops out a little bigger and settles, with a glint, like a loop being pulled through. */
+  _drawPop(c, now) {
     const { w } = this.scene, s = this.cell, p = this.pad;
     for (const r of this.recent) {
-      const a = (1 - (now - r.at) / 280) * 0.5;
-      if (a <= 0) continue;
-      c.fillStyle = `rgba(255,255,255,${a.toFixed(3)})`;
-      c.fillRect(((r.i % w) + p) * s, (Math.floor(r.i / w) + p) * s, s, s);
+      const age = now - r.at;
+      if (age > 260) continue;
+      const k = age / 260;
+      const size = s * (1 + 0.5 * Math.sin(Math.PI * Math.min(1, k * 1.15)));
+      const x = ((r.i % w) + p) * s + s / 2 - size / 2, y = (Math.floor(r.i / w) + p) * s + s / 2 - size / 2;
+      c.drawImage(this._tile(r.idx, hash(r.i % w, Math.floor(r.i / w))), x, y, size, size);
+      c.fillStyle = `rgba(255,255,255,${((1 - k) * 0.4).toFixed(3)})`;
+      c.fillRect(x, y, size, size);
     }
   }
 
-  _drawHook(c, cx, cy, idx, now) {
+  /** The ball of yarn the thread comes from. It gets smaller as the work grows. */
+  _drawBall(c, idx, progress, now) {
     const s = this.cell;
-    const sway = Math.sin(now / 260) * s * 1.1;
-    const yarn = css(this.scene.rgb[idx]);
-    c.lineCap = 'round';
-    // yarn running in from the top-right corner to the hook, swaying a little
-    for (const [col, wd] of [['rgba(0,0,0,.22)', 0.34], [yarn, 0.28]]) {
-      c.strokeStyle = col; c.lineWidth = Math.max(2, s * wd);
-      c.beginPath(); c.moveTo(this.W, -s);
-      c.quadraticCurveTo(this.W * 0.82 + sway, cy - s * 5, cx + s * 1.4, cy - s * 1.2); c.stroke();
+    const r = s * 3 * (1 - 0.45 * progress);
+    const bx = this.W - s * 4.2, by = s * 4.2 + Math.sin(now / 420) * s * 0.12;
+    const yarn = this.scene.rgb[idx];
+    c.save();
+    c.translate(bx, by);
+    c.rotate(now / 1800);
+    // soft shadow, then the ball with a round shading
+    c.fillStyle = 'rgba(0,0,0,.25)';
+    c.beginPath(); c.ellipse(s * 0.25, r * 0.95, r, r * 0.28, 0, 0, Math.PI * 2); c.fill();
+    const grad = c.createRadialGradient(-r * 0.35, -r * 0.35, r * 0.1, 0, 0, r);
+    grad.addColorStop(0, css(tone(yarn, 0.35)));
+    grad.addColorStop(0.6, css(yarn));
+    grad.addColorStop(1, css(tone(yarn, -0.4)));
+    c.fillStyle = grad;
+    c.beginPath(); c.arc(0, 0, r, 0, Math.PI * 2); c.fill();
+    // wound strands
+    c.strokeStyle = css(tone(yarn, -0.35)); c.lineWidth = Math.max(1, s * 0.1); c.lineCap = 'round';
+    for (let k = -2; k <= 2; k++) {
+      c.beginPath(); c.ellipse(0, 0, r * 0.97, Math.abs(k) < 1 ? r * 0.35 : r * 0.7, k * 0.5, -0.9, 1.3); c.stroke();
     }
-    // the hook rocks gently as it works: aluminium shaft, wooden handle, small barb
+    c.restore();
+    return { x: bx, y: by, r };
+  }
+
+  _drawHook(c, cx, cy, idx, now, ball) {
+    const s = this.cell;
+    const yarn = css(this.scene.rgb[idx]);
+    const sway = Math.sin(now / 260) * s * 1.1;
+    c.lineCap = 'round';
+    // the thread runs from the ball to the hook, swaying a little
+    for (const [col, wd] of [['rgba(0,0,0,.25)', 0.42], [yarn, 0.34]]) {
+      c.strokeStyle = col; c.lineWidth = Math.max(2, s * wd);
+      c.beginPath(); c.moveTo(ball.x - ball.r * 0.3, ball.y + ball.r * 0.8);
+      c.quadraticCurveTo(this.W * 0.8 + sway, cy - s * 6, cx + s * 1.7, cy - s * 1.4); c.stroke();
+    }
+    // the hook: bigger and rocking as it works: aluminium shaft, wooden handle, hooked tip
     c.save();
     c.translate(cx, cy);
-    c.rotate(Math.sin(now / 90) * 0.07);
-    c.strokeStyle = '#d7dde4'; c.lineWidth = Math.max(2, s * 0.32);
-    c.beginPath(); c.moveTo(s * 0.1, s * 0.15); c.lineTo(s * 4.4, -s * 3.6); c.stroke();
-    c.strokeStyle = '#b4573b'; c.lineWidth = Math.max(3, s * 0.62);
-    c.beginPath(); c.moveTo(s * 2.6, -s * 2.1); c.lineTo(s * 6.4, -s * 5.3); c.stroke();
-    c.strokeStyle = '#d7dde4'; c.lineWidth = Math.max(2, s * 0.3);
-    c.beginPath(); c.arc(-s * 0.12, s * 0.02, s * 0.3, 0, Math.PI * 1.4); c.stroke();
+    c.rotate(Math.sin(now / 90) * 0.08);
+    c.strokeStyle = 'rgba(0,0,0,.3)'; c.lineWidth = Math.max(3, s * 0.62);
+    c.beginPath(); c.moveTo(s * 0.2, s * 0.35); c.lineTo(s * 6, -s * 4.9); c.stroke();
+    c.strokeStyle = '#e1e6ec'; c.lineWidth = Math.max(3, s * 0.46);
+    c.beginPath(); c.moveTo(s * 0.1, s * 0.15); c.lineTo(s * 6, -s * 5); c.stroke();
+    c.strokeStyle = '#f7f9fb'; c.lineWidth = Math.max(1, s * 0.14);
+    c.beginPath(); c.moveTo(s * 0.4, 0); c.lineTo(s * 5.6, -s * 4.7); c.stroke();
+    c.strokeStyle = '#b4573b'; c.lineWidth = Math.max(4, s * 0.9);
+    c.beginPath(); c.moveTo(s * 3.6, -s * 3); c.lineTo(s * 9, -s * 7.4); c.stroke();
+    c.strokeStyle = '#d98a5f'; c.lineWidth = Math.max(1, s * 0.2);
+    c.beginPath(); c.moveTo(s * 3.9, -s * 3.4); c.lineTo(s * 8.6, -s * 7.3); c.stroke();
+    // the hooked tip, and the loop of yarn sitting on it
+    c.strokeStyle = '#e1e6ec'; c.lineWidth = Math.max(2, s * 0.4);
+    c.beginPath(); c.arc(-s * 0.15, s * 0.05, s * 0.4, 0, Math.PI * 1.45); c.stroke();
+    c.strokeStyle = yarn; c.lineWidth = Math.max(2, s * 0.3);
+    const pulse = 1 + 0.12 * Math.sin(now / 110);
+    c.beginPath(); c.ellipse(s * 0.25, -s * 0.1, s * 0.95 * pulse, s * 0.6 * pulse, -0.5, 0, Math.PI * 2); c.stroke();
     c.restore();
   }
 

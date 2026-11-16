@@ -112,7 +112,7 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **How it is done.** Hand written; each entry lists the choice, the reason and the alternatives.
 
-**Runs in:** Not code · 96 lines
+**Runs in:** Not code · 104 lines
 
 **Used by:** People reading the repository
 
@@ -142,7 +142,7 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **How it is done.** Hand written from the working log of the build.
 
-**Runs in:** Not code · 94 lines
+**Runs in:** Not code · 100 lines
 
 **Used by:** People reading the repository
 
@@ -468,9 +468,9 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **What it is.** Tests for features added after the first release.
 
-**How it is done.** Search scopes (testaments add up to the whole; one book stays inside itself), picture variants and shuffles, English and Tamil names for every figure, place, hour and mood, English/Tamil interface text having exactly the same entries, saved data (stars, highlights, notes, picture edits, recent searches), backup and restore without duplicates, and the verse-of-the-day list. Gives `store.mjs` a simple stand-in for `localStorage`.
+**How it is done.** Search scopes (testaments add up to the whole; one book stays inside itself), picture variants and shuffles, English and Tamil names for every figure, place, hour and mood, English/Tamil interface text having exactly the same entries, saved data (stars, highlights, notes, picture edits, recent searches), backup and restore without duplicates, and the verse-of-the-day list. Includes the "plays once per verse" memory and its cap, and old settings that said motion "on". Gives `store.mjs` a simple stand-in for `localStorage`.
 
-**Runs in:** Node (build) · 139 lines · 8 tests
+**Runs in:** Node (build) · 167 lines · 10 tests
 
 **Uses:** [`core/scope.mjs`](../core/scope.mjs) · [`pipeline/node-bible.mjs`](../pipeline/node-bible.mjs) · [`core/art/compose.mjs`](../core/art/compose.mjs) · [`core/art/spec.mjs`](../core/art/spec.mjs) · [`web/js/labels.mjs`](../web/js/labels.mjs) · [`web/js/i18n.mjs`](../web/js/i18n.mjs) · [`web/js/popular.mjs`](../web/js/popular.mjs) · [`web/js/store.mjs`](../web/js/store.mjs) · `node:test` (built into Node) · `node:assert/strict` (built into Node) · `node:fs` (built into Node) · `node:path` (built into Node)
 
@@ -716,9 +716,9 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **What it is.** The picture side of a verse: scenes with the reader's own edits applied, the verse card, the picture editor, and sharing a verse as an image.
 
-**How it is done.** `specOf`/`sceneOf` merge the stored picture description with any saved edit. The verse card plays the crocheting reveal (speed from Settings), keeps the progress bar, and offers Watch again, Save, Edit picture, Copy and Share. The editor changes place, hour, mood and up to three figures, or shuffles the layout, redrawing the picture each time and announcing the change so list thumbnails repaint. Sharing draws a 1080-pixel card (picture, reference, verse text wrapped in both languages) and hands it to the phone's share sheet or downloads it.
+**How it is done.** `specOf`/`sceneOf` merge the stored picture description with any saved edit. The verse card plays the crocheting reveal only when `shouldReveal` says so (by default the first time a verse is opened; afterwards the finished picture appears at once), shows "Row 12 of 32" and a progress bar, marks the verse as seen once 30% has been watched, finished or skipped, and offers Watch again (which plays even when the animation is set to Off), Save, Edit picture, Copy and Share. The editor changes place, hour, mood and up to three figures, or shuffles the layout, redrawing the picture each time and announcing the change so list thumbnails repaint. Sharing draws a 1080-pixel card (picture, reference, verse text wrapped in both languages) and hands it to the phone's share sheet or downloads it.
 
-**Runs in:** Browser · 209 lines
+**Runs in:** Browser · 217 lines
 
 **Uses:** [`web/js/data.mjs`](../web/js/data.mjs) · [`web/js/store.mjs`](../web/js/store.mjs) · [`web/js/i18n.mjs`](../web/js/i18n.mjs) · [`web/js/crochet.mjs`](../web/js/crochet.mjs) · [`core/art/compose.mjs`](../core/art/compose.mjs) · [`core/art/spec.mjs`](../core/art/spec.mjs) · [`core/books.mjs`](../core/books.mjs) · [`web/js/ui.mjs`](../web/js/ui.mjs) · [`web/js/labels.mjs`](../web/js/labels.mjs)
 
@@ -730,9 +730,9 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **What it is.** Draws a scene as crochet and plays the crocheting animation.
 
-**How it is done.** Each cell is a stitch tile (a darker gap, two slanted legs, highlights) drawn once per colour and reused. The reveal works bottom row first, each row in the opposite direction like real crochet, with a hook that rocks as it works, yarn that sways in from the corner, a shimmer on freshly worked stitches, and a band of light sweeping across at the end. After that only the cells that change are repainted, ten times a second, for the idle animation. Speeds: slow 7 s, normal 3.8 s, fast 1.7 s.
+**How it is done.** Each cell is a stitch tile (a darker gap, two slanted legs, highlights) drawn once per colour and reused. The reveal works bottom row first, each row in the opposite direction like real crochet. To make it easy to follow, the not-yet-worked area shows a faint ghost of the finished pattern (like a crochet chart), the row being worked is lit, each new stitch pops out a little bigger and glints, a ball of yarn (shrinking as the work grows) feeds a swaying thread to a larger, rocking hook with a loop on its tip, and a band of light sweeps across at the end. After that only the cells that change are repainted, ten times a second, for the idle animation. Speeds: slow 7 s, normal 3.8 s, fast 1.7 s.
 
-**Runs in:** Browser · 259 lines
+**Runs in:** Browser · 321 lines
 
 **Used by:** [`web/js/art-view.mjs`](../web/js/art-view.mjs)
 
@@ -758,7 +758,7 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **How it is done.** One table per language; `t(key, ...args)` returns the text in the chosen language, falling back to English. Some entries are functions (verse counts, restored items). A test checks both languages have exactly the same entries.
 
-**Runs in:** Browser · 91 lines
+**Runs in:** Browser · 95 lines
 
 **Used by:** [`pipeline/features.test.mjs`](../pipeline/features.test.mjs) · [`web/js/app.mjs`](../web/js/app.mjs) · [`web/js/art-view.mjs`](../web/js/art-view.mjs) · [`web/js/ui.mjs`](../web/js/ui.mjs) · [`web/js/views.mjs`](../web/js/views.mjs)
 
@@ -792,13 +792,13 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **What it is.** Everything the app remembers on the device, in `localStorage`.
 
-**How it is done.** Settings (versions shown, text size, theme, speed...), saved verses, highlights (colours 1 to 4), notes, picture edits and recent searches, all in one JSON record. Reads and writes never throw, so private windows simply remember nothing. `exportData`/`importData` make and restore a backup file; restoring merges, never duplicates, and refuses files that are not Crochet Bible backups.
+**How it is done.** Settings (versions shown, text size, theme, animation mode and speed...), saved verses, highlights (colours 1 to 4), notes, picture edits, recent searches and the list of verses whose crocheting has already been shown (capped at 4,000, oldest dropped first), all in one JSON record. Reads and writes never throw, so private windows simply remember nothing. `exportData`/`importData` make and restore a backup file; restoring merges, never duplicates, and refuses files that are not Crochet Bible backups.
 
-**Runs in:** Browser · 95 lines
+**Runs in:** Browser · 112 lines
 
 **Used by:** [`pipeline/features.test.mjs`](../pipeline/features.test.mjs) · [`web/js/app.mjs`](../web/js/app.mjs) · [`web/js/art-view.mjs`](../web/js/art-view.mjs) · [`web/js/ui.mjs`](../web/js/ui.mjs) · [`web/js/views.mjs`](../web/js/views.mjs)
 
-**Exports:** `settings`, `isBookmarked`, `toggleBookmark`, `highlightOf`, `setHighlight`, `noteOf`, `setNote`, `artEditOf`, `setArtEdit`, `addRecent`, `clearRecent`, `exportData`, `importData`
+**Exports:** `settings`, `hasSeen`, `markSeen`, `forgetSeen`, `isBookmarked`, `toggleBookmark`, `highlightOf`, `setHighlight`, `noteOf`, `setNote`, `artEditOf`, `setArtEdit`, `addRecent`, `clearRecent`, `exportData`, `importData`
 
 ### `web/js/thumbs.mjs`
 
@@ -818,23 +818,23 @@ Every file in the project: what it is, how it is done, what it uses and where it
 
 **What it is.** The small toolkit every screen uses: the `h()` element builder, toast messages, the bottom sheet, icons, verse text blocks with highlighted search words, and the "leave this screen" cleanup list.
 
-**How it is done.** `h()` builds DOM elements without any framework and never uses innerHTML for text, so verse text and search input cannot inject markup. Cleanups stop animations and keyboard handlers when the screen changes.
+**How it is done.** `h()` builds DOM elements without any framework and never uses innerHTML for text, so verse text and search input cannot inject markup. Cleanups stop animations and keyboard handlers when the screen changes. `shouldReveal(ref)` decides whether a verse is crocheted now: always in "Every time" mode, only for verses not yet seen in "First time only" mode, never in "Off" mode or when the device asks for reduced motion.
 
-**Runs in:** Browser · 122 lines
+**Runs in:** Browser · 127 lines
 
 **Uses:** [`web/js/data.mjs`](../web/js/data.mjs) · [`web/js/store.mjs`](../web/js/store.mjs) · [`web/js/i18n.mjs`](../web/js/i18n.mjs) · [`core/books.mjs`](../core/books.mjs) · [`core/reference.mjs`](../core/reference.mjs)
 
 **Used by:** [`web/js/app.mjs`](../web/js/app.mjs) · [`web/js/art-view.mjs`](../web/js/art-view.mjs) · [`web/js/views.mjs`](../web/js/views.mjs)
 
-**Exports:** `$`, `h`, `isTamilText`, `vInfo`, `langClass`, `bookName`, `refLabels`, `rangeLabel`, `onLeave`, `runCleanups`, `motionOn`, `idleOn`, `toast`, `highlight`, `textBlocks`, `icon`, `openSheet`
+**Exports:** `$`, `h`, `isTamilText`, `vInfo`, `langClass`, `bookName`, `refLabels`, `rangeLabel`, `onLeave`, `runCleanups`, `reducedMotion`, `motionOn`, `shouldReveal`, `idleOn`, `toast`, `highlight`, `textBlocks`, `icon`, `openSheet`
 
 ### `web/js/views.mjs`
 
 **What it is.** The screens: Home, Reader, Verse, Search, Saved and Settings, plus the book picker and the notes and highlight dialogs.
 
-**How it is done.** Reader: tap verses to select; a bar offers Picture, Copy, Save, Highlight (4 colours) and Note; English and Tamil show side by side on wide screens. Book picker: a "Continue reading" shortcut, a filter that understands English and Tamil names, then a chapter grid. Search: scope (whole Bible, testament, one book), any-word, Tamil in English letters, recent searches, and references such as "John 3:16" open the passage directly. Saved: stars, highlights and notes. Settings: language, versions (download or remove), text size, pictures beside verses, theme, stitching animation, speed, idle motion, backup and restore, credits.
+**How it is done.** Reader: tap verses to select; a bar offers Picture, Copy, Save, Highlight (4 colours) and Note; English and Tamil show side by side on wide screens. Book picker: a "Continue reading" shortcut, a filter that understands English and Tamil names, then a chapter grid. Search: scope (whole Bible, testament, one book), any-word, Tamil in English letters, recent searches, and references such as "John 3:16" open the passage directly. Saved: stars, highlights and notes. Settings: language, versions (download or remove), text size, pictures beside verses, theme, stitching animation (first time only, every time, off), speed, idle motion, backup and restore, credits.
 
-**Runs in:** Browser · 462 lines
+**Runs in:** Browser · 463 lines
 
 **Uses:** [`web/js/data.mjs`](../web/js/data.mjs) · [`web/js/store.mjs`](../web/js/store.mjs) · [`web/js/i18n.mjs`](../web/js/i18n.mjs) · [`web/js/thumbs.mjs`](../web/js/thumbs.mjs) · [`web/js/popular.mjs`](../web/js/popular.mjs) · [`web/js/art-view.mjs`](../web/js/art-view.mjs) · [`web/js/ui.mjs`](../web/js/ui.mjs) · [`core/books.mjs`](../core/books.mjs) · [`core/reference.mjs`](../core/reference.mjs) · [`core/query.mjs`](../core/query.mjs) · [`core/scope.mjs`](../core/scope.mjs)
 

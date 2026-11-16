@@ -1,6 +1,6 @@
 // Small UI toolkit shared by every screen: DOM builder, toast, bottom sheet, icons, verse text.
 import * as data from './data.mjs';
-import { settings } from './store.mjs';
+import { settings, hasSeen } from './store.mjs';
 import { t, getLang } from './i18n.mjs';
 import { BOOK_BY_ID, splitRef } from '../core/books.mjs';
 import { formatReference } from '../core/reference.mjs';
@@ -49,7 +49,12 @@ let cleanups = [];
 export const onLeave = (fn) => cleanups.push(fn);
 export function runCleanups() { cleanups.forEach((f) => { try { f(); } catch { /* ignore */ } }); cleanups = []; }
 
-export const motionOn = () => settings.motion === 'on' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** The device asks for less motion (an accessibility setting). Always respected, even for "Watch again". */
+export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** Is the crocheting animation allowed at all (not switched off, not "reduce motion")? */
+export const motionOn = () => settings.motion !== 'off' && !reducedMotion();
+/** Should this verse's picture be crocheted now? "first": only if it has not been shown before. */
+export const shouldReveal = (ref) => motionOn() && (settings.motion === 'always' || !hasSeen(ref));
 export const idleOn = () => settings.idle && !matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function toast(msg) {

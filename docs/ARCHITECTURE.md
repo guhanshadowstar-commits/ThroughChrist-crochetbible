@@ -103,7 +103,7 @@ that is also computed for every Tamil word (`fts_ph`).
 2. **Compose** (in the browser, `core/art/compose.mjs`): a random generator seeded by the verse id lays out sky, sun or moon, clouds, hills or sea,
    trees, the figures and weather on a 48 by 32 grid of palette indices. The same verse always gives the same picture; different verses about the same
    thing differ in layout. A "variant" number (the Shuffle button) gives other layouts.
-3. **Draw** (`web/js/crochet.mjs`): each cell becomes a yarn stitch. The reveal works bottom row first, each row in the opposite direction, with a hook, swaying yarn and a shimmer, then a light sweeps across. After that only changed cells repaint ten times a second for the idle animation (drifting clouds, flapping wings, flickering flames, rain).
+3. **Draw** (`web/js/crochet.mjs`): each cell becomes a yarn stitch. The reveal works bottom row first, each row in the opposite direction, over a faint ghost of the finished pattern, with the working row lit, stitches that pop, a ball of yarn, a rocking hook and "Row N of 32"; then a light sweeps across. It plays the first time a verse is opened (the device remembers which; see `web/js/store.mjs`) and afterwards the finished picture appears at once. After that only changed cells repaint ten times a second for the idle animation (drifting clouds, flapping wings, flickering flames, rain).
 4. **Edit** (`web/js/art-view.mjs`): the reader may change place, hour, mood and figures or shuffle; the change is stored on the device (`store.mjs`) and applied everywhere (verse card, thumbnails, sharing).
 
 God and Christ are never drawn as people. They appear through symbols: light and heaven for God, the cross, lamb, shepherd or crown for Christ.
@@ -146,4 +146,4 @@ So the same files run at a domain root (`npm run serve`) or in a sub-folder (Git
 
 31,133 verse ids (the union over all versions; the KJV has 31,102) · 11 Bible texts · 66 books, 1,189 chapters · 75 crochet figures ·
 12 settings · 48 by 32 stitches per picture (1,536) · 36 yarn colours · 1,146 old-English forms folded · about 390 book-name spellings ·
-at most 4 versions shown (and searched) at once · 48 automated tests.
+at most 4 versions shown (and searched) at once · 50 automated tests.

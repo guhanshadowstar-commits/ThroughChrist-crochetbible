@@ -41,6 +41,12 @@ hosting on **GitHub** with updates pushed there, and this documentation.
 - Animation: swaying hook, shimmer on fresh stitches, a light sweep at the end, flapping wings, a grazing lamb, flicking tails, flapping birds, shooting stars, page transitions, rising search results.
 - App code split into `ui`, `art-view`, `views`, `app`, `labels`, `store`, `thumbs` modules.
 
+### 16 Nov: animation made clearer, and played once per verse
+- Asked: make the crochet animation more visible and relatable, and stop it playing every time.
+- Reveal redrawn: ghost of the finished pattern, lit working row, popping stitches, visible yarn ball, larger hook with a loop, "Row N of 32".
+- Playing rule changed: the crocheting plays the first time each verse is opened (remembered on the device), then the finished picture appears at once. Settings: First time only (default), Every time, Off; "Watch again" always works.
+- Checked in the browser: all three modes, skipping, reopening, "Watch again" with the animation off. Added tests for the remembered list and its cap.
+
 ### 16 Nov: GitHub and documentation
 - Made all addresses relative so the app works from a sub-folder; the service worker finds its own folder.
 - Added the Pages workflow, `.gitignore`, a local git repository and the first commit.
@@ -72,7 +78,7 @@ hosting on **GitHub** with updates pushed there, and this documentation.
 
 ## What was verified, and how
 
-- **48 automated tests** (44 for the app and data, plus 4 that keep the documentation complete and current): data integrity, search (English, Tamil, Tamil typed in English letters, phrases, NOT, OR, prefix, scopes, paging), references,
+- **50 automated tests** (46 for the app and data, plus 4 that keep the documentation complete and current): data integrity, search (English, Tamil, Tamil typed in English letters, phrases, NOT, OR, prefix, scopes, paging), references,
   pictures (every figure, every verse has a picture, scenes fully covered, deterministic, same-subject verses differ, animation moves), the web server (and path-escape attempts), saved data and backup, interface text parity, the verse-of-the-day list.
 - **In a browser:** first run from a cleared browser (installs the default versions); every screen; reader selection, highlight, star and note; saved tabs; book picker with English and Tamil filters; search results with highlights; picture editor (change, shuffle, reset); settings; backup round trip; Tamil interface; phone-width layout with no sideways scrolling.
 - **Offline:** with the server stopped the app loaded and searched; on the live site the app files, the SQLite engine and the downloaded versions are cached after the second visit.

@@ -7,7 +7,7 @@ const defaults = () => ({
   show: ['en-web', 'ta-irv'],      // versions shown, in order (also the ones searched)
   installed: [],                    // versions downloaded to this device
   textSize: 2,                      // 0..4
-  motion: 'on',                     // 'on' | 'off': the crocheting reveal
+  motion: 'first',                  // the crocheting reveal: 'first' (once per verse) | 'always' | 'off'
   idle: true,                       // pictures keep moving once finished
   speed: 'normal',                  // 'slow' | 'normal' | 'fast'
   pictures: true,                   // small pictures beside verses in the reader
@@ -18,12 +18,16 @@ const defaults = () => ({
   notes: {},                        // { ref: { text, at } }
   artEdits: {},                     // { ref: { setting, time, mood, hero, props, variant } }
   recent: [],                       // recent searches, newest first
+  seen: [],                         // verses whose crocheting has already been shown (oldest first)
 });
 
 let data;
+let seenSet = new Set();
 function load() {
   try { data = { ...defaults(), ...JSON.parse(localStorage.getItem(KEY) || '{}') }; }
   catch { data = defaults(); }
+  if (data.motion === 'on') data.motion = 'first'; // older versions called "play once" simply "on"
+  seenSet = new Set(data.seen);
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { /* storage unavailable */ } }
 load();
@@ -32,6 +36,18 @@ export const settings = new Proxy({}, {
   get: (_, k) => data[k],
   set: (_, k, v) => { data[k] = v; save(); return true; },
 });
+
+// ---- which verses have already been crocheted on screen ----
+const SEEN_LIMIT = 4000;
+export const hasSeen = (ref) => seenSet.has(ref);
+export function markSeen(ref) {
+  if (seenSet.has(ref)) return;
+  seenSet.add(ref);
+  data.seen.push(ref);
+  while (data.seen.length > SEEN_LIMIT) seenSet.delete(data.seen.shift());
+  save();
+}
+export function forgetSeen() { data.seen = []; seenSet = new Set(); save(); }
 
 // ---- saved verses ----
 export const isBookmarked = (ref) => data.bookmarks.some((b) => b.ref === ref);
@@ -89,6 +105,7 @@ export function importData(text) {
   Object.assign(data.highlights, obj.highlights ?? {});
   Object.assign(data.notes, obj.notes ?? {});
   Object.assign(data.artEdits, obj.artEdits ?? {});
+  if (obj.motion === 'on') obj.motion = 'first';
   for (const k of ['uiLang', 'textSize', 'motion', 'idle', 'speed', 'pictures', 'theme']) if (obj[k] !== undefined) data[k] = obj[k];
   save();
   return (obj.bookmarks?.length ?? 0) + Object.keys(obj.highlights ?? {}).length + Object.keys(obj.notes ?? {}).length + Object.keys(obj.artEdits ?? {}).length;

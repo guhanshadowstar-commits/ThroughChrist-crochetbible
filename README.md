@@ -22,7 +22,7 @@ npm install
 npm run fetch       # download the Bible texts (once)
 npm run build       # build the data files and the art pack into dist/data
 npm run serve       # open http://localhost:4321
-npm test            # 48 tests
+npm test            # 50 tests
 ```
 
 **On an iPhone:** open the address in Safari, tap Share, then "Add to Home Screen". After a version has

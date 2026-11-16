@@ -76,6 +76,14 @@ Why: no accounts, no server. `exportData`/`importData` move saved verses, highli
 **20. Motion is optional.**
 Why: the stitching reveal and idle motion can be switched off (and follow the system "reduce motion" setting), for comfort and battery.
 
+**20b. The crocheting plays once per verse, then the finished picture is simply there.**
+Why (requested "I don't want them to load every time"): a 4-second reveal on every visit gets tiring. By default each verse is crocheted the first time it is opened; the device remembers which verses it has shown (a capped list of up to 4,000), and afterwards the finished picture appears instantly with only the gentle idle motion. "Watch again" replays it whenever wanted, even with the animation off.
+Settings offer **First time only** (default), **Every time**, **Off**. A device's own "reduce motion" setting is always respected.
+Instead considered: a faster reveal (still tiring); replacing it with a small decorative loop (loses the link to the verse's own picture); playing it only from a button (people would never see it).
+
+**20c. The reveal was redrawn to be easier to see and to feel like real crochet.**
+Why (requested "more visible and relatable"): a faint ghost of the finished pattern shows what is being made, the working row is lit, each new stitch pops out and glints, a visible ball of yarn feeds the thread, the hook is larger with a loop on its tip, and "Row 12 of 32" says where the work is.
+
 ## Publishing
 
 **21. GitHub Pages, deployed by GitHub Actions, built from source.**
