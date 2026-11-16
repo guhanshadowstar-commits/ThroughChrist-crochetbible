@@ -80,6 +80,8 @@ const STR = {
   },
 };
 
+export const STRINGS = STR;
+
 let lang = 'en';
 export const setLang = (l) => { lang = STR[l] ? l : 'en'; document.documentElement.lang = lang; };
 export const getLang = () => lang;

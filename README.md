@@ -1,5 +1,7 @@
 # Crochet Bible
 
+> **Documentation:** [docs/](docs/README.md) explains how everything fits together ([architecture](docs/ARCHITECTURE.md)), every file and what it uses ([file reference](docs/FILES.md)), where the texts came from ([data sources](docs/DATA-SOURCES.md)), why choices were made ([decisions](docs/DECISIONS.md)), what was built and what is still open ([history](docs/HISTORY.md)), and how to work on it ([development guide](docs/DEVELOPMENT.md)).
+
 The Bible in **English and Tamil**, with a **crochet picture stitched for every verse**. It is a web app
 that installs on a phone and works offline.
 
@@ -20,7 +22,7 @@ npm install
 npm run fetch       # download the Bible texts (once)
 npm run build       # build the data files and the art pack into dist/data
 npm run serve       # open http://localhost:4321
-npm test            # 36 tests
+npm test            # 48 tests
 ```
 
 **On an iPhone:** open the address in Safari, tap Share, then "Add to Home Screen". After a version has

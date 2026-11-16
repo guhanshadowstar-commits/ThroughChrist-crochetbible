@@ -14,6 +14,7 @@
     "search": "node --no-warnings pipeline/cli.mjs",
     "export": "node pipeline/export-web.mjs",
     "icons": "node pipeline/make-icons.mjs",
+    "docs": "node pipeline/gen-docs.mjs",
     "serve": "node --no-warnings server/server.mjs",
     "test": "node --no-warnings --test \"pipeline/*.test.mjs\""
   },
