@@ -27,6 +27,12 @@ npm test            # 36 tests
 downloaded, the app works without internet. (From a phone on the same Wi-Fi, use the computer's address
 instead of `localhost`; to share it with anyone, host it, see below.)
 
+## Live site
+
+**https://guhanshadowstar-commits.github.io/ThroughChrist-crochetbible/**
+
+Source: https://github.com/guhanshadowstar-commits/ThroughChrist-crochetbible
+
 ## Put it on the internet (GitHub Pages)
 
 The app is a plain static site with no server code. `.github/workflows/pages.yml` builds it from source and
